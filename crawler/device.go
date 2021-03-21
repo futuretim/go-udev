@@ -3,14 +3,13 @@ package crawler
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/pilebones/go-udev/netlink"
+	"github.com/futuretim/go-udev/netlink"
 )
 
 const (
@@ -24,14 +23,13 @@ type Device struct {
 
 // ExistingDevices return all plugged devices matched by the matcher
 // All uevent files inside /sys/devices is crawled to match right env values
-func ExistingDevices(queue chan Device, errs chan error, matcher netlink.Matcher) chan struct{} {
+func ExistingDevices(queue chan Device, errors chan error, matcher netlink.Matcher) chan struct{} {
 	quit := make(chan struct{}, 1)
 
 	if matcher != nil {
 		if err := matcher.Compile(); err != nil {
-			errs <- fmt.Errorf("Wrong matcher, err: %w", err)
+			errors <- fmt.Errorf("Wrong matcher, err: %v", err)
 			quit <- struct{}{}
-			close(queue)
 			return quit
 		}
 	}
@@ -40,7 +38,7 @@ func ExistingDevices(queue chan Device, errs chan error, matcher netlink.Matcher
 		err := filepath.Walk(BASE_DEVPATH, func(path string, info os.FileInfo, err error) error {
 			select {
 			case <-quit:
-				return errors.New("abort signal receive")
+				return fmt.Errorf("abort signal receive")
 			default:
 				if err != nil {
 					return err
@@ -63,6 +61,7 @@ func ExistingDevices(queue chan Device, errs chan error, matcher netlink.Matcher
 				}
 
 				if matcher == nil || matcher.EvaluateEnv(env) {
+
 					queue <- Device{
 						KObj: kObj,
 						Env:  env,
@@ -73,9 +72,8 @@ func ExistingDevices(queue chan Device, errs chan error, matcher netlink.Matcher
 		})
 
 		if err != nil {
-			errs <- err
+			errors <- err
 		}
-
 		close(queue)
 	}()
 	return quit

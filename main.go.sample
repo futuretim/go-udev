@@ -10,8 +10,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/pilebones/go-udev/crawler"
-	"github.com/pilebones/go-udev/netlink"
+	"github.com/snapcore/snapd/osutil/udev/crawler"
+	"github.com/snapcore/snapd/osutil/udev/netlink"
 
 	"github.com/kr/pretty"
 )
@@ -66,7 +66,7 @@ func info(matcher netlink.Matcher) {
 	go func() {
 		<-signals
 		log.Println("Exiting info mode...")
-		close(quit)
+		quit <- struct{}{}
 		os.Exit(0)
 	}()
 
@@ -78,9 +78,9 @@ func info(matcher netlink.Matcher) {
 				log.Printf("Finished processing existing devices\n")
 				return
 			}
-			log.Println("Detect device at", device.KObj, "with env", device.Env)
+			log.Printf("Detect device at %s with env %v\n", device.KObj, device.Env)
 		case err := <-errors:
-			log.Println("ERROR:", err)
+			log.Printf("ERROR: %v", err)
 		}
 	}
 }
@@ -105,7 +105,7 @@ func monitor(matcher netlink.Matcher) {
 	go func() {
 		<-signals
 		log.Println("Exiting monitor mode...")
-		close(quit)
+		quit <- struct{}{}
 		os.Exit(0)
 	}()
 
@@ -113,9 +113,9 @@ func monitor(matcher netlink.Matcher) {
 	for {
 		select {
 		case uevent := <-queue:
-			log.Println("Handle", pretty.Sprint(uevent))
+			log.Printf("Handle %s\n", pretty.Sprint(uevent))
 		case err := <-errors:
-			log.Println("ERROR:", err)
+			log.Printf("ERROR: %v", err)
 		}
 	}
 
@@ -133,12 +133,12 @@ func getOptionnalMatcher() (matcher netlink.Matcher, err error) {
 	}
 
 	if stream == nil {
-		return nil, fmt.Errorf("Empty, no rules provided in \"%s\", err: %w", *filePath, err)
+		return nil, fmt.Errorf("Empty, no rules provided in \"%s\", err: %s", *filePath, err.Error())
 	}
 
 	var rules netlink.RuleDefinitions
 	if err := json.Unmarshal(stream, &rules); err != nil {
-		return nil, fmt.Errorf("Wrong rule syntax, err: %w", err)
+		return nil, fmt.Errorf("Wrong rule syntax in \"%s\", err: %s", *filePath, err.Error())
 	}
 
 	return &rules, nil

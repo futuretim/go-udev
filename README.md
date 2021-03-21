@@ -1,4 +1,4 @@
-# go-udev [![Go Report Card](https://goreportcard.com/badge/github.com/pilebones/go-udev)](https://goreportcard.com/report/github.com/pilebones/go-udev) [![GoDoc](https://godoc.org/github.com/pilebones/go-udev?status.svg)](https://godoc.org/github.com/pilebones/go-udev) [![Build Status](https://travis-ci.org/pilebones/go-udev.svg?branch=master)](https://travis-ci.org/pilebones/go-udev)
+# go-udev [![Go Report Card](https://goreportcard.com/badge/github.com/futuretim/go-udev)](https://goreportcard.com/report/github.com/futuretim/go-udev) [![GoDoc](https://godoc.org/github.com/futuretim/go-udev?status.svg)](https://godoc.org/github.com/futuretim/go-udev) [![Build Status](https://travis-ci.org/pilebones/go-udev.svg?branch=master)](https://travis-ci.org/pilebones/go-udev)
 
 Simple udev implementation in Golang developed from scratch.
 This library allow to listen and manage Linux-kernel (since version 2.6.10) Netlink messages to user space (ie: NETLINK_KOBJECT_UEVENT).
@@ -10,7 +10,7 @@ Like [`udev`](https://en.wikipedia.org/wiki/Udev) you will be able to monitor, d
 ### Get sources
 
 ```
-go get github.com/pilebones/go-udev
+go get github.com/futuretim/go-udev
 ```
 
 ### Unit test
@@ -119,7 +119,7 @@ Don't hesitate to notice if you detect a problem with this tool or library.
   * KObject action: http://elixir.free-electrons.com/linux/v3.12/source/lib/kobject_uevent.c#L45
 
 ## Documentation
-- [GoDoc Reference](http://godoc.org/github.com/pilebones/go-udev).
+- [GoDoc Reference](http://godoc.org/github.com/futuretim/go-udev).
 
 ## License
 
